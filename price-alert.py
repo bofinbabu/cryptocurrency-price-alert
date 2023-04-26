@@ -6,51 +6,31 @@ import requests
 import schedule
 import time
 
-btc_usd = 'https://api.cryptonator.com/api/full/btc-usd'
-eth_usd = 'https://api.cryptonator.com/api/full/eth-usd'
-ltc_usd = 'https://api.cryptonator.com/api/full/ltc-usd'
+COINGECKO_API = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin%2Cethereum%2Clitecoin&vs_currencies=usd'
 
-ALERT_INTERVAL = 30
+ALERT_INTERVAL = 60
 
 def sendmessage(message):
     subprocess.Popen(['notify-send', message])
     return
 
-
-def get_btc_usd():
+def get_crypto_prices():
     try:
-        r = requests.get(btc_usd).json()
-        price = int(float(r['ticker']['price']))
-        return unicode(price)
+        r = requests.get(COINGECKO_API).json()
+        btc_price = int(float(r['bitcoin']['usd']))
+        eth_price = round(float(r['ethereum']['usd']), 1)
+        ltc_price = round(float(r['litecoin']['usd']), 2)
+        return btc_price, eth_price, ltc_price
     except:
-        return '??'
-
-
-def get_eth_usd():
-    try:
-        r = requests.get(eth_usd).json()
-        price = round(float(float(r['ticker']['price'])), 1)
-        return unicode(price)
-    except:
-        return '??'
-
-
-def get_ltc_usd():
-    try:
-        r = requests.get(ltc_usd).json()
-        price = round(float(float(r['ticker']['price'])), 2)
-        return unicode(price)
-    except:
-        return '??'
-
+        return '??', '??', '??'
 
 def send_notification():
-    message = 'BTC: '+get_btc_usd()+'  | '+'ETH: '+get_eth_usd()+'  |  '+'LTC: '+get_ltc_usd()
+    btc, eth, ltc = get_crypto_prices()
+    message = f'BTC: {btc}  |  ETH: {eth}  |  LTC: {ltc}'
     sendmessage(message)
 
 if __name__ == '__main__':
-    schedule.every(ALERT_INTERVAL).minutes.do(send_notification)
+    schedule.every(ALERT_INTERVAL).seconds.do(send_notification)
     while True:
         schedule.run_pending()
         time.sleep(1)
-
