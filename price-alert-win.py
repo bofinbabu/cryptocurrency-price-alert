@@ -1,18 +1,21 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
-import subprocess
 import requests
 import schedule
 import time
+from plyer import notification
 
 COINGECKO_API = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin%2Cethereum%2Clitecoin&vs_currencies=usd'
 
-ALERT_INTERVAL = 60 # in seconds
+ALERT_INTERVAL = 60
 
-def sendmessage(message):
-    subprocess.Popen(['notify-send', message])
-    return
+def sendmessage(title, message):
+    notification.notify(
+        title=title,
+        message=message,
+        timeout=10
+    )
 
 def get_crypto_prices():
     try:
@@ -27,10 +30,10 @@ def get_crypto_prices():
 def send_notification():
     btc, eth, ltc = get_crypto_prices()
     message = f'BTC: {btc}  |  ETH: {eth}  |  LTC: {ltc}'
-    sendmessage(message)
+    sendmessage("Crypto Prices", message)
 
 if __name__ == '__main__':
-    schedule.every(ALERT_INTERVAL).seconds.do(send_notification) # change seconds to/from minutes if desired
+    schedule.every(ALERT_INTERVAL).seconds.do(send_notification)
     while True:
         schedule.run_pending()
         time.sleep(1)
