@@ -8,7 +8,7 @@ import time
 
 COINGECKO_API = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin%2Cethereum%2Clitecoin&vs_currencies=usd'
 
-ALERT_INTERVAL = 60
+ALERT_INTERVAL = 60 # in seconds
 
 def sendmessage(message):
     subprocess.Popen(['notify-send', message])
@@ -30,7 +30,7 @@ def send_notification():
     sendmessage(message)
 
 if __name__ == '__main__':
-    schedule.every(ALERT_INTERVAL).seconds.do(send_notification)
+    schedule.every(ALERT_INTERVAL).seconds.do(send_notification) # change seconds to/from minutes if desired
     while True:
         schedule.run_pending()
         time.sleep(1)
